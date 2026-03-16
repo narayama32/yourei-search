@@ -167,18 +167,6 @@
       margin-bottom: 10px;
     }
 
-    .badge {
-      font-size: 0.7rem;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-weight: 500;
-      letter-spacing: 0.03em;
-    }
-
-    .badge-gov  { background: #f0f7f0; color: #3a6b3a; border: 1px solid #c8dfc8; }
-    .badge-lit  { background: #fdf5ee; color: #8b4513; border: 1px solid #e8d0b8; }
-    .badge-news { background: #eef3fa; color: #2d5a8e; border: 1px solid #c0d0e8; }
-
     .badge-level {
       font-size: 0.7rem;
       color: #aaa;
@@ -440,8 +428,6 @@ const DATA = [
   { id:52, kw:['力'], sentence:'力は権利を生まない。もし力が権利を生むとすれば、その力よりも大きな力が現れた瞬間に、権利もまた入れ替わることになる。', source:'ルソー「社会契約論」第一巻第三章（AI訳）', type:'lit', level:'中級' },
 ];
 
-const typeLabel = { gov:'政府文書', lit:'文学', news:'ニュース' };
-const typeIcon  = { gov:'🏛', lit:'📚', news:'📰' };
 
 function doSearch() {
   const q = document.getElementById('searchInput').value.trim();
@@ -479,7 +465,6 @@ function render(q) {
     html += `
       <div class="card" style="animation-delay:${i * 0.04}s" id="c${d.id}">
         <div class="card-meta">
-          <span class="badge badge-${d.type}">${typeIcon[d.type]} ${typeLabel[d.type]}</span>
           <span class="badge-level">${d.level}</span>
         </div>
         <div class="sentence">${highlighted}</div>

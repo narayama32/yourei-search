@@ -538,11 +538,10 @@ async function loadSheet() {
     const res = await fetch(url);
     if (!res.ok) throw new Error('取得失敗');
     const text = await res.text();
-    const rows = text.trim().split('\n').slice(1); // 1行目はヘッダーとしてスキップ
+    const rows = parseCSV(text).slice(1); // 1行目はヘッダーとしてスキップ
 
     sheetData = rows
-      .map((row, i) => {
-        const cols = parseCSVRow(row);
+      .map((cols, i) => {
         if (cols.length < 3 || !cols[0] || !cols[1]) return null;
         return {
           id: 10000 + i,
@@ -564,18 +563,41 @@ async function loadSheet() {
   }
 }
 
-function parseCSVRow(row) {
-  const result = [];
+// 複数行セル対応の完全なCSVパーサー
+function parseCSV(text) {
+  const rows = [];
+  let row = [];
   let cur = '';
   let inQ = false;
-  for (let i = 0; i < row.length; i++) {
-    const c = row[i];
-    if (c === '"') { inQ = !inQ; continue; }
-    if (c === ',' && !inQ) { result.push(cur); cur = ''; continue; }
-    cur += c;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (inQ) {
+      if (c === '"') {
+        // "" はエスケープされた引用符
+        if (text[i + 1] === '"') { cur += '"'; i++; }
+        else { inQ = false; }
+      } else {
+        cur += c; // 改行も含めてそのまま追加
+      }
+    } else {
+      if (c === '"') {
+        inQ = true;
+      } else if (c === ',') {
+        row.push(cur); cur = '';
+      } else if (c === '\n') {
+        row.push(cur); cur = '';
+        rows.push(row); row = [];
+      } else if (c === '\r') {
+        // \r\n の \r は無視
+      } else {
+        cur += c;
+      }
+    }
   }
-  result.push(cur);
-  return result;
+  // 最後のセル・行を追加
+  row.push(cur);
+  if (row.some(c => c !== '')) rows.push(row);
+  return rows;
 }
 
 // 前回のURLを復元
